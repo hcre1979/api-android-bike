@@ -1,33 +1,33 @@
-var express = require('express');
-var router = express.Router();
+const express = require('express');
 
-var User = require('../lib/User');
-var Route = require('../lib/Route');
+const router = express.Router();
 
-var isAuthenticated = require('../utils/utils').isAuthenticated;
+const User = require('../lib/User');
+const Route = require('../lib/Route');
 
-router.get('/', function (req, res, next) {
+const isAuthenticated = require('../utils/utils').isAuthenticated;
+
+router.get('/', (req, res) => {
   res.send('routes');
 });
 
-router.post('/create', isAuthenticated, function (req, res, next) {
-  var name = req.body.name;
+router.post('/create', isAuthenticated, (req, res) => {
+  const name = req.body.name;
 
-  var newRoute = new Route();
+  const newRoute = new Route();
   newRoute.name = name;
 
-  newRoute.save(function (err, savedRoute) {
+  newRoute.save((err, savedRoute) => {
     if (err) {
       console.log(err);
       return res.status(500).send();
     }
 
-    var username = req.session.user.username;
-    User.findOneAndUpdate({ username: username }, {$push:{ routes: savedRoute }}, function (err, doc) {
+    const username = req.session.user.username;
+    User.findOneAndUpdate({ username }, { $push: { routes: savedRoute } }, (err, doc) => {
       if (err) return res.status(500).send();
       return res.status(200).send();
     });
-
   });
 });
 

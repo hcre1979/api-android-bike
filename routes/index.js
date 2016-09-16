@@ -1,12 +1,13 @@
-var express = require('express');
-var router = express.Router();
+const express = require('express');
 
-router.get('/', function (req, res, next) {
+const router = express.Router();
+
+router.get('/', (req, res) => {
   res.render('index', { title: 'Express' });
 });
 
-router.get('/status', function (req, res, next) {
-  var responseObject = { status: 'OK' };
+router.get('/status', (req, res) => {
+  const responseObject = { status: 'OK' };
   res.send(responseObject);
 });
  

@@ -1,17 +1,18 @@
-var express = require('express');
-var router = express.Router();
+const express = require('express');
 
-var User = require('../lib/User');
+const router = express.Router();
 
-router.get('/', function (req, res, next) {
+const User = require('../lib/User');
+
+router.get('/', (req, res) => {
   res.send('auth');
 });
 
-router.post('/login', function (req, res, next) {
-  var username = req.body.username;
-  var password = req.body.password;
+router.post('/login', (req, res) => {
+  const username = req.body.username;
+  const password = req.body.password;
 
-  User.findOne({ username: username }, function (err, user) {
+  User.findOne({ username }, (err, user) => {
     if (err) {
       console.log(err);
       return res.status(500).send();
@@ -21,20 +22,19 @@ router.post('/login', function (req, res, next) {
       return res.status(404).send();
     }
 
-    user.comparePassword(password, function (isMatch) {
+    user.comparePassword(password, (isMatch) => {
       if (isMatch && isMatch === true) {
         req.session.user = user;
-        console.log(user);
+        //console.log(user);
         return res.status(200).send();
       }
-      else {
-        return res.status(401).send();
-      }
+
+      return res.status(401).send();
     });
   });
 });
 
-router.get('/logout', function (req, res, next) {
+router.get('/logout', (req, res) => {
   req.session.destroy();
   return res.status(200).send();
 });

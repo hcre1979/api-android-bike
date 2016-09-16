@@ -1,29 +1,29 @@
-var express = require('express');
-var router = express.Router();
+const express = require('express');
 
-var User = require('../lib/User');
-var Route = require('../lib/Route');
-var Coordinate = require('../lib/Coordinate');
+const router = express.Router();
 
-var isAuthenticated = require('../utils/utils').isAuthenticated;
+const User = require('../lib/User');
+const Coordinate = require('../lib/Coordinate');
 
-router.get('/', function (req, res, next) {
+const isAuthenticated = require('../utils/utils').isAuthenticated;
+
+router.get('/', (req, res) => {
   res.send('users');
 });
 
-router.post('/register', function (req, res, next) {
-  var username = req.body.username;
-  var password = req.body.password;
-  var firstname = req.body.firstname;
-  var lastname = req.body.lastname;
+router.post('/register', (req, res) => {
+  const username = req.body.username;
+  const password = req.body.password;
+  const firstname = req.body.firstname;
+  const lastname = req.body.lastname;
 
-  var newUser = new User();
+  const newUser = new User();
   newUser.username = username;
   newUser.password = password;
   newUser.firstname = firstname;
   newUser.lastname = lastname;
 
-  newUser.save(function (err, savedUser) {
+  newUser.save((err) => {
     if (err) {
       console.log(err);
       return res.status(500).send();
@@ -33,42 +33,48 @@ router.post('/register', function (req, res, next) {
   });
 });
 
-router.get('/dashboard', isAuthenticated, function (req, res, next) {
+router.get('/dashboard', isAuthenticated, (req, res) => {
   User
   .findOne({ _id: req.session.user._id })
-  .populate('routes')
-  .exec(function (err, user) {
+  .populate({
+    path: 'routes',
+    populate: { path: 'coordinates' }
+  })
+  //.populate('routes')
+  .exec((err, user) => {
     if (err) return res.status(500).send(); //return handleError(err);
-    return res.status(200).send('Welcome to the super-secret API!\n' + user);
+    return res.status(200).send(`Welcome to the super-secret API!\n${user}`);
   });
 });
 
-router.get('/debug', function (req, res, next) {
+router.get('/debug', (req, res) => {
   User
   .find()
   .populate({
     path: 'routes',
     populate: { path: 'coordinates' }
   })
-  .exec(function (err, user) {
+  .exec((err, user) => {
     if (err) return res.status(500).send();
-    var array = [];
-    user.forEach(function(item, index) {
+    /*
+    const array = [];
+    user.forEach((item) => {
       array.push(item);
     });
+    */
 
-    return res.status(200).send(array);
+    return res.status(200).send(user);
   });
 });
 
-router.get('/debug2', function (req, res, next) {
+router.get('/debug2', (req, res) => {
   Coordinate
   .find()
   .populate('_route')
-  .exec(function (err, route) {
+  .exec((err, route) => {
     if (err) return res.status(500).send();
     return res.status(200).send(route);
-  })
+  });
 });
 
 module.exports = router;
